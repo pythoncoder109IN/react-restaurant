@@ -5,7 +5,6 @@ import Error from './Error.jsx';
 const requestConfig = {};
 
 export default function Meals() {
-  console.log(import.meta.env.BACKEND_URL);
   const {
     data: loadedMeals,
     isLoading,

@@ -39,7 +39,7 @@ export default function Email({ order }) {
         <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
           <Section className="mt-[32px]">
             <Img
-                src={`${import.meta.env.BASE_URL}/src/assets/logo.jpg`}
+                src={`${import.meta.env.VITE_BASE_URL}/src/assets/logo.jpg`}
                 width="40"
                 height="37"
                 alt="React Restaurant"

@@ -31,7 +31,7 @@ export default function Checkout() {
     error,
     sendRequest,
     clearData,
-  } = useHttp(`${import.meta.env.BACKEND_URL}/orders`, requestConfig);
+  } = useHttp(`${import.meta.env.VITE_BACKEND_URL}/orders`, requestConfig);
 
   const cartTotal = cartCtx.items.reduce(
     (totalPrice, item) => totalPrice + item.quantity * item.price,
@@ -40,7 +40,7 @@ export default function Checkout() {
 
   const initPayment = (data) => {
     const options = {
-      key: import.meta.env.RZPY_KEY,
+      key: import.meta.env.VITE_RZPY_KEY,
       amount: data.amount,
       currency: data.currency,
       name: "React Restaurant",
@@ -48,7 +48,7 @@ export default function Checkout() {
       order_id: data.id,
       handler: async (response) => {
         try {
-          const verifyUrl = `${import.meta.env.BACKEND_URL}/api/payment/verify`;
+          const verifyUrl = `${import.meta.env.VITE_BACKEND_URL}/api/payment/verify`;
           const { data } = await axios.post(verifyUrl, response);
           if (data.message === "Payment verified successfully") {
             userProgressCtx.showCheckout();
@@ -65,7 +65,7 @@ export default function Checkout() {
 
   const handlePayment = async () => {
     try {
-      const orderUrl = `${import.meta.env.BACKEND_URL}/api/payment/orders`;
+      const orderUrl = `${import.meta.env.VITE_BACKEND_URL}/api/payment/orders`;
       const { data } = await axios.post(orderUrl, { amount: cartTotal });
       initPayment(data.data);
     } catch (error) {
@@ -75,7 +75,7 @@ export default function Checkout() {
 
   function sendEmail() {
     const emailHtml = render(<Email order={order} />);
-    fetch(`${import.meta.env.BACKEND_URL}/send-email`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/send-email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -3,12 +3,10 @@ import useHttp from '../hooks/useHttp.js';
 import Error from './Error.jsx';
 
 const requestConfig = {
-  const requestConfig = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 };
 
 export default function Meals() {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 async function sendHttpRequest(url, config) {
-  const response = await fetch(url, config);
+  const response = await fetch(url, { ...config, mode: 'cors' });
 
   const resData = await response.json();
 

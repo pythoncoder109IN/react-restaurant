@@ -1,7 +1,6 @@
 import {
   Html,
   Head,
-  Heading,
   Text,
   Row,
   Column,
@@ -39,13 +38,13 @@ export default function Email({ order }) {
         <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
           <Section className="mt-[32px]">
             <Img
-                src={`${import.meta.env.VITE_BASE_URL}/src/assets/logo-BG5OLuJH.jpg`}
+                src={`${import.meta.env.VITE_BASE_URL}/assets/logo-BG5OLuJH.jpg`}
                 width="40"
                 height="37"
                 alt="React Restaurant"
             />
-            <Heading className="text-black text-[14px] leading-[24px]">Thank You for ordering from us:</Heading>
-            <Heading className="text-black text-[14px] leading-[24px]">{name}</Heading>
+            <Text className="text-black text-[14px] leading-[24px]">Thank You for ordering from us:</Text>
+            <Text className="text-black text-[14px] leading-[24px]">{name}</Text>
             <Text className="text-black text-[14px] leading-[24px]">{email}</Text>
             <Text className="text-black text-[14px] leading-[24px]">{street}</Text>
             <Text className="text-black text-[14px] leading-[24px]">{city}</Text>
@@ -53,15 +52,15 @@ export default function Email({ order }) {
           </Section>
           <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
           <Section>
-            <Heading className="text-black text-[14px] leading-[24px]">
+            <Text className="text-black text-[14px] leading-[24px]">
               Your Bill from React Restaurant
-            </Heading>
+            </Text>
             {customerOrder.map((item) => (
               <Row key={item.id}>
                 <Column>
-                  <Heading className="text-black text-[14px] leading-[24px]">
+                  <Text className="text-black text-[14px] leading-[24px]">
                     {item.name}
-                  </Heading>
+                  </Text>
                   <Text>{item.description}</Text>
                   <Text>
                     ₹{item.price} x {item.quantity}

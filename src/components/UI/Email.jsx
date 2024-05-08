@@ -40,8 +40,8 @@ export default function Email({ order }) {
           <Section className="mt-[32px]">
             <Img
                 src={`${import.meta.env.VITE_BASE_URL}/assets/logo-BG5OLuJH.jpg`}
-                width="40"
-                height="37"
+                width="200"
+                height="200"
                 alt="React Restaurant"
               />
             <Heading as="h2">Thank You for ordering from us:</Heading>

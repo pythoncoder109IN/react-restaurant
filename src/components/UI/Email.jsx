@@ -70,7 +70,7 @@ export default function Email({ order }) {
                 </Column>
               </Row>
             ))}
-            <Text className="text-black text-[14px] leading-[24px]">Total:- ₹{currencyFormatter.format(cartTotal)}</Text>
+            <Text className="text-black text-[14px] leading-[24px]">Total:- {currencyFormatter.format(cartTotal)}</Text>
           </Section>
         </Container>
         </Body>

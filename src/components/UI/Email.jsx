@@ -39,13 +39,14 @@ export default function Email({ order }) {
         <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
           <Section className="mt-[32px]">
             <Img
-                src={`${import.meta.env.VITE_BASE_URL}/assets/logo-BG5OLuJH.jpg`}
-                width="200"
-                height="200"
+                src={`${import.meta.env.VITE_BASE_URL}/src/assets/logo.jpg`}
+                width="40"
+                height="37"
                 alt="React Restaurant"
               />
-            <Heading as="h2">Thank You for ordering from us:</Heading>
-            <Heading className="text-black text-[20px] font-normal text-center p-0 my-[30px] mx-0">{name}</Heading>
+            <Heading as="h2" className="text-black text-[20px] font-normal text-center p-0 my-[30px] mx-0">
+              Thank You for ordering from us: {name}
+            </Heading>
             <Text className="text-black text-[14px] leading-[24px]">{email}</Text>
             <Text className="text-black text-[14px] leading-[24px]">{street}</Text>
             <Text className="text-black text-[14px] leading-[24px]">{city}</Text>
@@ -53,17 +54,17 @@ export default function Email({ order }) {
           </Section>
           <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
           <Section className="bg-gradient-to-r from-violet-500 to-fuchsia-500">
-            <Heading as="h4">
+            <Heading as="h4" className="text-white">
               Your Bill from React Restaurant
             </Heading>
             {customerOrder.map((item) => (
               <Row key={item.id}>
                 <Column>
-                  <Heading as="h4">
+                  <Heading as="h4" className="text-white">
                     {item.name}
                   </Heading>
-                  <Text>{item.description}</Text>
-                  <Text>
+                  <Text className="text-white">{item.description}</Text>
+                  <Text className="text-white">
                     ₹{item.price} x {item.quantity}
                   </Text>
                   <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />

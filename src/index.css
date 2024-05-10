@@ -52,7 +52,7 @@ h1 {
 
 #meals {
   width: 93%;
-  max-width: 100vw;
+  max-width: 70rem;
   list-style: none;
   margin: 2rem auto;
   padding: 1rem;
@@ -309,6 +309,7 @@ h1 {
   }
   #meals {
     width: 100%;
+    max-width: 100vw;
   }
   .meal-items {
     width: 93%;

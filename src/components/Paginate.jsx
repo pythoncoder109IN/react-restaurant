@@ -1,55 +1,77 @@
 import ReactPaginate from 'react-paginate';
-import MealItem from './MealItem';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+
+import MealItem from './MealItem';
 
 export default function Paginate({ items, itemsPerPage }) {
   const [itemOffset, setItemOffset] = useState(0);
 
   function Items({ currentItems }) {
     return (
-      <ul id="meals">
-        {currentItems.map((meal)=>{
+      <motion.ul
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 mb-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {currentItems.map((meal, index) => {
           const newMeal = {
             id: meal['food'].foodId,
             name: meal['food'].label,
-            price: meal['food']['nutrients']['ENERC_KCAL'] / 10,
-            description: meal['food'].category,
-            image: meal['food'].image || "https://assets-v2.lottiefiles.com/a/05359890-1164-11ee-9f09-d76ef2ed5f8e/RGv5qDO9hu.gif"
-          }
-          return <MealItem key={newMeal.id} meal={newMeal} />
+            price: Math.max(5, Math.floor(meal['food']['nutrients']['ENERC_KCAL'] / 10)) || 15,
+            description: meal['food'].category || 'Delicious and nutritious dish prepared with care',
+            image: meal['food'].image || "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg"
+          };
+          return <MealItem key={newMeal.id} meal={newMeal} index={index} />;
         })}
-      </ul>
+      </motion.ul>
     );
   }
 
   const endOffset = itemOffset + itemsPerPage;
-  console.log(`Loading items from ${itemOffset} to ${endOffset}`);
   const currentItems = items.slice(itemOffset, endOffset);
   const pageCount = Math.ceil(items.length / itemsPerPage);
 
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsPerPage) % items.length;
-    console.log(
-      `User requested page number ${event.selected}, which is offset ${newOffset}`
-    );
     setItemOffset(newOffset);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <>
+    <div>
       <Items currentItems={currentItems} />
-      <ReactPaginate
-        breakLabel="..."
-        nextLabel=">"
-        onPageChange={handlePageClick}
-        pageRangeDisplayed={5}
-        pageCount={pageCount}
-        previousLabel="<"
-        renderOnZeroPageCount={null}
-        className='paging'
-        pageClassName='button'
-        activeClassName='text-button'
-      />
-    </>
+      {pageCount > 1 && (
+        <motion.div
+          className="flex justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <ReactPaginate
+            breakLabel="..."
+            nextLabel="Next →"
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={3}
+            marginPagesDisplayed={1}
+            pageCount={pageCount}
+            previousLabel="← Previous"
+            renderOnZeroPageCount={null}
+            className="pagination"
+            pageClassName="page-item"
+            pageLinkClassName="page-link"
+            activeClassName="selected"
+            disabledClassName="disabled"
+            breakClassName="page-item"
+            breakLinkClassName="page-link"
+            nextClassName="page-item"
+            nextLinkClassName="page-link"
+            previousClassName="page-item"
+            previousLinkClassName="page-link"
+          />
+        </motion.div>
+      )}
+    </div>
   );
 }

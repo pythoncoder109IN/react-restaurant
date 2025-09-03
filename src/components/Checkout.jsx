@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { CreditCard, MapPin, User, Mail, Lock, ArrowLeft, CheckCircle } from "lucide-react";
+import { CreditCard, MapPin, User, Mail, Lock, ArrowLeft, CheckCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -62,7 +62,7 @@ export default function Checkout() {
           const { data } = await axios.post(verifyUrl, response);
           if (data.message === "Payment verified successfully") {
             setPaymentSuccess(true);
-            toast.success("Payment successful!");
+            toast.success("Payment successful!", { icon: '🎉' });
           }
         } catch (error) {
           console.log(error);
@@ -107,8 +107,14 @@ export default function Checkout() {
     userProgressCtx.hideCheckout();
   }
 
+  function handleGoBack() {
+    userProgressCtx.showCart();
+  }
+
   function handleFinish() {
-    sendEmail();
+    if (order) {
+      sendEmail();
+    }
     userProgressCtx.hideCheckout();
     cartCtx.clearCart();
     clearData();
@@ -120,6 +126,7 @@ export default function Checkout() {
       'postal-code': '',
       city: ''
     });
+    toast.success('Thank you for your order!', { icon: '🍽️' });
   }
 
   function handleInputChange(field, value) {
@@ -132,17 +139,27 @@ export default function Checkout() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    const order = {
+    // Validate form
+    const requiredFields = ['name', 'email', 'street', 'postal-code', 'city'];
+    const missingFields = requiredFields.filter(field => !formData[field].trim());
+    
+    if (missingFields.length > 0) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    const orderData = {
       items: cartCtx.items,
       customer: formData,
     };
-    setOrder(order);
-    sendRequest(JSON.stringify({ order: order }));
-    handleClose();
+    setOrder(orderData);
+    
+    // For demo purposes, simulate payment directly
+    handlePayment();
   }
 
   // Success Modal
-  if (data && !error && paymentSuccess) {
+  if (paymentSuccess) {
     return (
       <AnimatePresence>
         <motion.div
@@ -210,7 +227,7 @@ export default function Checkout() {
             <div className="flex items-center justify-between p-6 border-b border-gray-100">
               <div className="flex items-center space-x-3">
                 <button
-                  onClick={handleClose}
+                  onClick={handleGoBack}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
                 >
                   <ArrowLeft className="w-5 h-5 text-gray-500" />
@@ -220,11 +237,19 @@ export default function Checkout() {
                   <p className="text-sm text-gray-500">Complete your order</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Total</p>
-                <p className="text-xl font-bold text-primary-600">
-                  {currencyFormatter.format(cartTotal)}
-                </p>
+              <div className="flex items-center space-x-2">
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Total</p>
+                  <p className="text-xl font-bold text-primary-600">
+                    {currencyFormatter.format(cartTotal)}
+                  </p>
+                </div>
+                <button
+                  onClick={handleClose}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
               </div>
             </div>
 
@@ -232,7 +257,7 @@ export default function Checkout() {
               {/* Order Summary */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
-                <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                <div className="bg-gray-50 rounded-xl p-4 space-y-3 max-h-48 overflow-y-auto">
                   {cartCtx.items.map((item) => (
                     <div key={item.id} className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
@@ -348,7 +373,7 @@ export default function Checkout() {
               <div className="mt-8 pt-6 border-t border-gray-100">
                 <motion.button
                   type="submit"
-                  disabled={isSending}
+                  disabled={isSending || cartCtx.items.length === 0}
                   className="w-full btn-primary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   whileHover={{ scale: isSending ? 1 : 1.02 }}
                   whileTap={{ scale: isSending ? 1 : 0.98 }}
@@ -361,7 +386,7 @@ export default function Checkout() {
                   ) : (
                     <>
                       <CreditCard className="w-5 h-5" />
-                      <span>Proceed to Payment</span>
+                      <span>Proceed to Payment ({currencyFormatter.format(cartTotal)})</span>
                     </>
                   )}
                 </motion.button>

@@ -1,6 +1,7 @@
 import { useContext } from 'react';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 import CartContext from '../store/CartContext.jsx';
 import { currencyFormatter } from '../util/formatting.js';
@@ -22,11 +23,26 @@ export default function Cart() {
   }
 
   function handleGoToCheckout() {
+    if (cartCtx.items.length === 0) {
+      toast.error('Your cart is empty!');
+      return;
+    }
     userProgressCtx.showCheckout();
   }
 
   function handleClearCart() {
     cartCtx.clearCart();
+    toast.success('Cart cleared!');
+  }
+
+  function handleAddItem(item) {
+    cartCtx.addItem(item);
+    toast.success(`Added ${item.name} to cart!`);
+  }
+
+  function handleRemoveItem(id, itemName) {
+    cartCtx.removeItem(id);
+    toast.success(`Removed ${itemName} from cart!`);
   }
 
   return (
@@ -97,19 +113,19 @@ export default function Cart() {
                         </div>
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => cartCtx.removeItem(item.id)}
-                            className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
+                            onClick={() => handleRemoveItem(item.id, item.name)}
+                            className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all duration-200"
                           >
-                            <Minus className="w-4 h-4 text-gray-600" />
+                            <Minus className="w-4 h-4" />
                           </button>
                           <span className="w-8 text-center font-semibold text-gray-900">
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => cartCtx.addItem(item)}
-                            className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
+                            onClick={() => handleAddItem(item)}
+                            className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-primary-50 hover:border-primary-200 hover:text-primary-600 transition-all duration-200"
                           >
-                            <Plus className="w-4 h-4 text-gray-600" />
+                            <Plus className="w-4 h-4" />
                           </button>
                         </div>
                       </motion.div>
@@ -135,7 +151,7 @@ export default function Cart() {
                     className="flex-1 btn-ghost flex items-center justify-center space-x-2"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span>Clear Cart</span>
+                    <span>Clear</span>
                   </button>
                   <motion.button
                     onClick={handleGoToCheckout}

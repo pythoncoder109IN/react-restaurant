@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { ShoppingCart, Search, Menu, X, UtensilsCrossed } from 'lucide-react';
+import { ShoppingCart, Menu, X, UtensilsCrossed } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import CartContext from '../store/CartContext.jsx';

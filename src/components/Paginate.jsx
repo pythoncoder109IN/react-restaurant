@@ -1,6 +1,7 @@
 import ReactPaginate from 'react-paginate';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import MealItem from './MealItem';
 
@@ -51,24 +52,36 @@ export default function Paginate({ items, itemsPerPage }) {
         >
           <ReactPaginate
             breakLabel="..."
-            nextLabel="Next →"
+            nextLabel={
+              <div className="flex items-center space-x-1">
+                <span>Next</span>
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            }
             onPageChange={handlePageClick}
             pageRangeDisplayed={3}
             marginPagesDisplayed={1}
             pageCount={pageCount}
-            previousLabel="← Previous"
+            previousLabel={
+              <div className="flex items-center space-x-1">
+                <ChevronLeft className="w-4 h-4" />
+                <span>Previous</span>
+              </div>
+            }
             renderOnZeroPageCount={null}
-            className="pagination"
+            className="flex items-center space-x-2"
             pageClassName="page-item"
-            pageLinkClassName="page-link"
+            pageLinkClassName="px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-all duration-200 cursor-pointer font-medium"
             activeClassName="selected"
+            activeLinkClassName="bg-primary-500 text-white border-primary-500 hover:bg-primary-600"
             disabledClassName="disabled"
+            disabledLinkClassName="text-gray-400 cursor-not-allowed hover:bg-transparent hover:text-gray-400 hover:border-gray-200"
             breakClassName="page-item"
-            breakLinkClassName="page-link"
+            breakLinkClassName="px-3 py-2 text-gray-400"
             nextClassName="page-item"
-            nextLinkClassName="page-link"
+            nextLinkClassName="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-all duration-200 cursor-pointer font-medium flex items-center space-x-1"
             previousClassName="page-item"
-            previousLinkClassName="page-link"
+            previousLinkClassName="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-all duration-200 cursor-pointer font-medium flex items-center space-x-1"
           />
         </motion.div>
       )}

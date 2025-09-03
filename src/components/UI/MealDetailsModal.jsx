@@ -1,5 +1,5 @@
-import { useContext, useState } from 'react';
-import { X, Plus, Minus, Star, Clock, Users, Heart, Share2 } from 'lucide-react';
+import { useContext, useState, useMemo } from 'react';
+import { X, Plus, Minus, Star, Clock, Users, Heart, Share2, ShoppingCart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
@@ -16,26 +16,38 @@ export default function MealDetailsModal() {
   const meal = userProgressCtx.selectedMeal;
   const isOpen = userProgressCtx.progress === 'meal-details';
 
-  if (!meal) return null;
+  // Generate consistent data based on meal ID
+  const mealData = useMemo(() => {
+    if (!meal) return null;
+    
+    const seed = meal.id ? meal.id.toString() : meal.name;
+    const hash = seed.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    
+    const absHash = Math.abs(hash);
+    
+    return {
+      rating: (4 + (absHash % 100) / 100).toFixed(1),
+      reviewCount: 50 + (absHash % 200),
+      cookingTime: 15 + (absHash % 30),
+      servings: 1 + (absHash % 4),
+      calories: 200 + (absHash % 600),
+      ingredients: [
+        'Fresh herbs', 'Premium spices', 'Organic vegetables', 
+        'High-quality protein', 'Artisanal sauce'
+      ],
+      nutritionFacts: [
+        { label: 'Calories', value: `${200 + (absHash % 600)} kcal` },
+        { label: 'Protein', value: `${15 + (absHash % 20)}g` },
+        { label: 'Carbs', value: `${25 + (absHash % 30)}g` },
+        { label: 'Fat', value: `${8 + (absHash % 15)}g` },
+      ]
+    };
+  }, [meal]);
 
-  // Generate demo data
-  const rating = (4 + Math.random()).toFixed(1);
-  const reviewCount = Math.floor(50 + Math.random() * 200);
-  const cookingTime = Math.floor(15 + Math.random() * 30);
-  const servings = Math.floor(1 + Math.random() * 4);
-  const calories = Math.floor(200 + Math.random() * 600);
-
-  const ingredients = [
-    'Fresh herbs', 'Premium spices', 'Organic vegetables', 
-    'High-quality protein', 'Artisanal sauce'
-  ];
-
-  const nutritionFacts = [
-    { label: 'Calories', value: `${calories} kcal` },
-    { label: 'Protein', value: '25g' },
-    { label: 'Carbs', value: '35g' },
-    { label: 'Fat', value: '12g' },
-  ];
+  if (!meal || !mealData) return null;
 
   function handleClose() {
     userProgressCtx.hideMealDetails();
@@ -46,7 +58,9 @@ export default function MealDetailsModal() {
     for (let i = 0; i < quantity; i++) {
       cartCtx.addItem(meal);
     }
-    toast.success(`Added ${quantity} ${meal.name}${quantity > 1 ? 's' : ''} to cart!`);
+    toast.success(`Added ${quantity} ${meal.name}${quantity > 1 ? 's' : ''} to cart!`, {
+      icon: '🛒',
+    });
     handleClose();
   }
 
@@ -65,7 +79,9 @@ export default function MealDetailsModal() {
 
   function toggleFavorite() {
     setIsFavorite(!isFavorite);
-    toast.success(isFavorite ? 'Removed from favorites' : 'Added to favorites');
+    toast.success(isFavorite ? 'Removed from favorites' : 'Added to favorites', {
+      icon: isFavorite ? '💔' : '❤️',
+    });
   }
 
   return (
@@ -132,16 +148,16 @@ export default function MealDetailsModal() {
                 <div className="flex items-center space-x-4 text-sm text-gray-600">
                   <div className="flex items-center space-x-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="font-medium">{rating}</span>
-                    <span>({reviewCount} reviews)</span>
+                    <span className="font-medium">{mealData.rating}</span>
+                    <span>({mealData.reviewCount} reviews)</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Clock className="w-4 h-4" />
-                    <span>{cookingTime} min</span>
+                    <span>{mealData.cookingTime} min</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Users className="w-4 h-4" />
-                    <span>{servings} serving{servings > 1 ? 's' : ''}</span>
+                    <span>{mealData.servings} serving{mealData.servings > 1 ? 's' : ''}</span>
                   </div>
                 </div>
               </div>
@@ -157,7 +173,7 @@ export default function MealDetailsModal() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Ingredients</h3>
                   <ul className="space-y-2">
-                    {ingredients.map((ingredient, index) => (
+                    {mealData.ingredients.map((ingredient, index) => (
                       <li key={index} className="flex items-center space-x-2 text-gray-600">
                         <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
                         <span>{ingredient}</span>
@@ -170,7 +186,7 @@ export default function MealDetailsModal() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Nutrition Facts</h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {nutritionFacts.map((fact, index) => (
+                    {mealData.nutritionFacts.map((fact, index) => (
                       <div key={index} className="bg-gray-50 p-3 rounded-lg">
                         <div className="text-sm text-gray-500">{fact.label}</div>
                         <div className="font-semibold text-gray-900">{fact.value}</div>
@@ -181,36 +197,46 @@ export default function MealDetailsModal() {
               </div>
 
               {/* Quantity and Add to Cart */}
-              <div className="flex items-center justify-between bg-gray-50 p-6 rounded-xl">
-                <div className="flex items-center space-x-4">
-                  <span className="text-lg font-medium text-gray-900">Quantity:</span>
-                  <div className="flex items-center space-x-3">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
-                      disabled={quantity <= 1}
-                    >
-                      <Minus className="w-4 h-4 text-gray-600" />
-                    </button>
-                    <span className="text-xl font-semibold text-gray-900 w-8 text-center">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
-                    >
-                      <Plus className="w-4 h-4 text-gray-600" />
-                    </button>
+              <div className="bg-gray-50 p-6 rounded-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <span className="text-lg font-medium text-gray-900">Quantity:</span>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={quantity <= 1}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="text-xl font-semibold text-gray-900 w-8 text-center">
+                        {quantity}
+                      </span>
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-primary-50 hover:border-primary-200 hover:text-primary-600 transition-all duration-200"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">Subtotal</p>
+                    <p className="text-xl font-bold text-primary-600">
+                      {currencyFormatter.format(meal.price * quantity)}
+                    </p>
                   </div>
                 </div>
 
                 <motion.button
                   onClick={handleAddToCart}
-                  className="btn-primary text-lg px-8 py-4"
+                  className="w-full btn-primary text-lg py-4 flex items-center justify-center space-x-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Add {quantity} to Cart - {currencyFormatter.format(meal.price * quantity)}
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>Add {quantity} to Cart</span>
                 </motion.button>
               </div>
             </div>

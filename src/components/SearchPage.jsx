@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Filter, SortAsc, Search, ChefHat } from "lucide-react";
+import { ArrowLeft, Filter, SortAsc, Search, ChefHat, Grid, List } from "lucide-react";
 import { motion } from "framer-motion";
 
 import useHttp from "../hooks/useHttp";
@@ -18,6 +18,7 @@ const requestConfig = {
 export default function SearchPage() {
   const [sortBy, setSortBy] = useState('relevance');
   const [filterBy, setFilterBy] = useState('all');
+  const [viewMode, setViewMode] = useState('grid');
   const navigate = useNavigate();
   const { dishName } = useParams();
   
@@ -27,10 +28,10 @@ export default function SearchPage() {
   
   const { data, isLoading, error } = useHttp(url, requestConfig, []);
 
-  let loadedMeals = [];
-
-  if (data?.hints) {
-    loadedMeals = data.hints;
+  const processedMeals = useMemo(() => {
+    if (!data?.hints) return [];
+    
+    let loadedMeals = [...data.hints];
     
     // Apply sorting
     if (sortBy === 'name') {
@@ -45,14 +46,29 @@ export default function SearchPage() {
         meal.food.category?.toLowerCase().includes(filterBy.toLowerCase())
       );
     }
-  }
+
+    return loadedMeals;
+  }, [data, sortBy, filterBy]);
 
   if (isLoading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
-    return <Error title="Failed to fetch meals" message={error} />;
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <button
+            onClick={() => navigate("/")}
+            className="btn-ghost flex items-center space-x-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Menu</span>
+          </button>
+        </div>
+        <Error title="Failed to fetch search results" message={error} />
+      </div>
+    );
   }
 
   return (
@@ -74,57 +90,85 @@ export default function SearchPage() {
           </button>
         </div>
 
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="bg-primary-100 p-2 rounded-lg">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="bg-primary-100 p-3 rounded-xl">
             <Search className="w-6 h-6 text-primary-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
               Search Results for "{dishName}"
             </h1>
-            <p className="text-gray-600">
-              Found {loadedMeals.length} delicious option{loadedMeals.length !== 1 ? 's' : ''}
+            <p className="text-gray-600 text-lg">
+              Found {processedMeals.length} delicious option{processedMeals.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
 
-        {/* Filters and Sorting */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Filter className="w-4 h-4 text-gray-500" />
-              <select
-                value={filterBy}
-                onChange={(e) => setFilterBy(e.target.value)}
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="all">All Categories</option>
-                <option value="dairy">Dairy</option>
-                <option value="meat">Meat</option>
-                <option value="vegetable">Vegetables</option>
-                <option value="fruit">Fruits</option>
-              </select>
-            </div>
-          </div>
+        {/* Filters and Controls */}
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="flex items-center space-x-2">
+                <Filter className="w-4 h-4 text-gray-500" />
+                <select
+                  value={filterBy}
+                  onChange={(e) => setFilterBy(e.target.value)}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="dairy">Dairy</option>
+                  <option value="meat">Meat</option>
+                  <option value="vegetable">Vegetables</option>
+                  <option value="fruit">Fruits</option>
+                  <option value="grain">Grains</option>
+                  <option value="seafood">Seafood</option>
+                </select>
+              </div>
 
-          <div className="flex items-center space-x-2">
-            <SortAsc className="w-4 h-4 text-gray-500" />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            >
-              <option value="relevance">Sort by Relevance</option>
-              <option value="name">Sort by Name</option>
-              <option value="calories">Sort by Calories</option>
-            </select>
+              <div className="flex items-center space-x-2">
+                <SortAsc className="w-4 h-4 text-gray-500" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                >
+                  <option value="relevance">Sort by Relevance</option>
+                  <option value="name">Sort by Name</option>
+                  <option value="calories">Sort by Calories</option>
+                </select>
+              </div>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center space-x-2 bg-gray-100 p-1 rounded-lg">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-md transition-all duration-200 ${
+                  viewMode === 'grid' 
+                    ? 'bg-white text-primary-600 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Grid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-md transition-all duration-200 ${
+                  viewMode === 'list' 
+                    ? 'bg-white text-primary-600 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>
 
       {/* Results */}
-      {loadedMeals.length > 0 ? (
-        <Paginate items={loadedMeals} itemsPerPage={12} />
+      {processedMeals.length > 0 ? (
+        <Paginate items={processedMeals} itemsPerPage={12} />
       ) : (
         <motion.div
           className="text-center py-16"
@@ -132,17 +176,19 @@ export default function SearchPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <ChefHat className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-500 mb-2">No results found</h3>
-          <p className="text-gray-400 mb-6">
-            We couldn't find any dishes matching "{dishName}". Try searching for something else!
-          </p>
-          <button
-            onClick={() => navigate("/")}
-            className="btn-primary"
-          >
-            Browse All Dishes
-          </button>
+          <div className="bg-gray-100 p-8 rounded-2xl max-w-md mx-auto">
+            <ChefHat className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-500 mb-2">No results found</h3>
+            <p className="text-gray-400 mb-6">
+              We couldn't find any dishes matching "{dishName}". Try searching for something else!
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="btn-primary"
+            >
+              Browse All Dishes
+            </button>
+          </div>
         </motion.div>
       )}
     </div>
